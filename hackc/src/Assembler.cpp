@@ -22,7 +22,7 @@ std::vector<std::string> Parse(std::string filename) {
     std::string token;
     bool isComment = false;
     for (int i = 0; i < content.length(); i++) {
-        if (content[i] == ' ') {
+        if (content[i] == ' ' || content[i] == '\t') {
             if (token != "")
                 tokens.push_back(token);
             token = "";
@@ -86,7 +86,7 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
 
         std::string tag = line.substr(1, line.length()-2);
         if (SYMBOLS.find(tag) != SYMBOLS.end()) continue;
-        SYMBOLS[tag] = ln + 1;
+        SYMBOLS[tag] = ln;
         continue;
 
     }

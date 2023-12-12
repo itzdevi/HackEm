@@ -1,8 +1,16 @@
 #include <iostream>
-#include "Hack.h"
 #include <fstream>
 #include <string>
 #include <vector>
+
+extern "C" {
+    #include "hack.h"
+    Hack* HackInit();
+    void HackFree(Hack* instance);
+    void HackAddCommand(Hack* instance, short* command);
+    void HackExecute(Hack* instance);
+    void* HackGetMemData(Hack* instance, unsigned short address);
+}
 
 bool hasEnding (std::string const &fullString, std::string const &ending) {
     if (fullString.length() >= ending.length()) {
@@ -13,10 +21,6 @@ bool hasEnding (std::string const &fullString, std::string const &ending) {
 }
 
 int main(int argc, char** argv) {
-#if defined(unix) || defined(__unix__) || defined(__unix)
-#include <stdlib.h>
-setenv("SDL_VIDEO_X11_VISUALID", "", 1);
-#endif
     if (argc < 2) return 1;
     if (!hasEnding(argv[1], ".hack")) return 1;
     std::ifstream f(argv[1]);
@@ -25,11 +29,13 @@ setenv("SDL_VIDEO_X11_VISUALID", "", 1);
     while (std::getline(f, line)) {
         content.push_back(line);
     }
-    Hack hack;
+    Hack* hack = HackInit();
     for (std::string line : content) {
-        hack.AddCommand(new short(std::stoi(line, 0, 2)));
+        HackAddCommand(hack, new short(std::stoi(line, 0, 2)));
     }
-    hack.Execute();
+    HackExecute(hack);
+
+    HackFree(hack);
 
     return 0;
 }
