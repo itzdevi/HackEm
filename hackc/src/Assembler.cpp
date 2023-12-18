@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <bitset>
+#include <string>
 #include "Assembler.h"
 
 std::vector<std::string> Parse(std::string filename) {
@@ -74,27 +75,36 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
         SYMBOLS["KBD"] = 24576;
     }
 
-    // first run
-    std::vector<std::string> tagged;
+    // first pass
+    std::vector<std::string> labeled;
     int ln = 0;
     for (std::string line : source) {
-        if (!(line[0] == '(' && line[line.length()-1] == ')')) {
-            tagged.push_back(line);
+        if (line[0] != '(') {
+            if (line[line.length()-1] == '(' || line[line.length()-1] == ')') {
+                std::cerr << "Error at line " << ln + 1 << ":\n";
+                std::cerr << "Expected EOL, found '" << line[line.length()-1] << "'\n";
+                exit(1);
+            }
+
+            labeled.push_back(line);
             ln++;
-            continue;
         }
-
-        std::string tag = line.substr(1, line.length()-2);
-        if (SYMBOLS.find(tag) != SYMBOLS.end()) continue;
-        SYMBOLS[tag] = ln;
-        continue;
-
+        else {
+            if (line[line.length()-1] != ')') {
+                std::cerr << "Error at line " << ln + 1 << ":\n";
+                std::cerr << "Expected ')', found EOL\n";
+                exit(1);
+            }
+            std::string label = line.substr(1, line.length()-2);
+            if (SYMBOLS.find(label) != SYMBOLS.end()) continue;
+            SYMBOLS[label] = ln;
+        }
     }
 
-    // second run
+    // second pass
     int lastVarPos = 16;
     std::vector<std::string> parsed;
-    for (std::string line : tagged) {
+    for (std::string line : labeled) {
         if (line[0] != '@') {
             parsed.push_back(line);
             continue;
@@ -115,6 +125,7 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
 
 void Assemble(std::vector<std::string> symbolized, std::string output) {
     std::vector<std::string> bin;
+    int ln = 0;
     for (std::string line : symbolized) {
         if (line[0] == '@') {
             // A INSTRUCTION
@@ -154,103 +165,124 @@ void Assemble(std::vector<std::string> symbolized, std::string output) {
             std::string res = "111";
             if (comp == "0")
                 res += "0101010";
-            if (comp == "1")
+            else if (comp == "1")
                 res += "0111111";
-            if (comp == "-1")
+            else if (comp == "-1")
                 res += "0111010";
-            if (comp == "D")
+            else if (comp == "D")
                 res += "0001100";
-            if (comp == "A")
+            else if (comp == "A")
                 res += "0110000";
-            if (comp == "M")
+            else if (comp == "M")
                 res += "1110000";
-            if (comp == "!D")
+            else if (comp == "!D")
                 res += "0001101";
-            if (comp == "!A")
+            else if (comp == "!A")
                 res += "0110001";
-            if (comp == "!M")
+            else if (comp == "!M")
                 res += "1110001";
-            if (comp == "-D")
+            else if (comp == "-D")
                 res += "0001111";
-            if (comp == "-A")
+            else if (comp == "-A")
                 res += "0110011";
-            if (comp == "-M")
+            else if (comp == "-M")
                 res += "1110011";
-            if (comp == "D+1")
+            else if (comp == "D+1")
                 res += "0011111";
-            if (comp == "A+1")
+            else if (comp == "A+1")
                 res += "0110111";
-            if (comp == "M+1")
+            else if (comp == "M+1")
                 res += "1110111";
-            if (comp == "D-1")
+            else if (comp == "D-1")
                 res += "0001110";
-            if (comp == "A-1")
+            else if (comp == "A-1")
                 res += "0110010";
-            if (comp == "M-1")
+            else if (comp == "M-1")
                 res += "1110010";
-            if (comp == "D+A")
+            else if (comp == "D+A")
                 res += "0000010";
-            if (comp == "D+M")
+            else if (comp == "D+M")
                 res += "1000010";
-            if (comp == "D-A")
+            else if (comp == "D-A")
                 res += "0010011";
-            if (comp == "D-M")
+            else if (comp == "D-M")
                 res += "1010011";
-            if (comp == "A-D")
+            else if (comp == "A-D")
                 res += "0000111";
-            if (comp == "M-D")
+            else if (comp == "M-D")
                 res += "1000111";
-            if (comp == "D&A")
+            else if (comp == "D&A")
                 res += "0000000";
-            if (comp == "D&M")
+            else if (comp == "D&M")
                 res += "1000000";
-            if (comp == "D|A")
+            else if (comp == "D|A")
                 res += "0010101";
-            if (comp == "D|M")
+            else if (comp == "D|M")
                 res += "1010101";
-            
+            else {
+                std::cerr << "Unrecognized symbol at line: " << ln + 1 << " \n";
+                std::cerr << "Illegal value '" << comp << "', expected expression\n";
+                exit(1);
+            }
+
             if (dest == "")
                 res += "000";
-            if (dest == "M")
+            else if (dest == "M")
                 res += "001";
-            if (dest == "D")
+            else if (dest == "D")
                 res += "010";
-            if (dest == "MD")
+            else if (dest == "MD")
                 res += "011";
-            if (dest == "A")
+            else if (dest == "A")
                 res += "100";
-            if (dest == "AM")
+            else if (dest == "AM")
                 res += "101";
-            if (dest == "AD")
+            else if (dest == "AD")
                 res += "110";
-            if (dest == "AMD")
+            else if (dest == "AMD")
                 res += "111";
+            else {
+                std::cerr << "Unrecognized symbol at line: " << ln + 1 << " \n";
+                std::cerr << "Illegal value '" << dest << "', expected destination\n";
+                exit(1);
+            }
 
             if (jump == "")
                 res += "000";
-            if (jump == "JGT")
+            else if (jump == "JGT")
                 res += "001";
-            if (jump == "JEQ")
+            else if (jump == "JEQ")
                 res += "010";
-            if (jump == "JGE")
+            else if (jump == "JGE")
                 res += "011";
-            if (jump == "JLT")
+            else if (jump == "JLT")
                 res += "100";
-            if (jump == "JNE")
+            else if (jump == "JNE")
                 res += "101";
-            if (jump == "JLE")
+            else if (jump == "JLE")
                 res += "110";
-            if (jump == "JMP")
+            else if (jump == "JMP")
                 res += "111";
+            else {
+                std::cerr << "Unrecognized symbol at line: " << ln + 1 << " \n";
+                std::cerr << "Illegal value '" << jump << "', expected jump instruction\n";
+                exit(1);
+            }
 
             bin.push_back(res);
         }
+        ln++;
+    }
+
+    unsigned short res[bin.size()] = { 0 };
+    for (int i = 0; i < bin.size(); i++) {
+        unsigned short x = std::stoi(bin[i], 0, 2);
+        res[i] = x;
     }
 
     std::string s(output);
-    std::ofstream f(s);
-    for (std::string line : bin) {
-        f << line << "\n";
-    }
+    std::fstream f;
+    f.open(s, std::ios::out | std::ios::binary);
+    f.write(reinterpret_cast<char*>(res), sizeof(res));
     f.close();
 }
