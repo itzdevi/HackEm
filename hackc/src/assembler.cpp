@@ -3,7 +3,7 @@
 #include <iostream>
 #include <bitset>
 #include <string>
-#include "Assembler.h"
+#include "assembler.h"
 
 std::vector<std::string> Parse(std::string filename) {
     std::ifstream f(filename);

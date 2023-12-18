@@ -1,4 +1,4 @@
-#include "Assembler.h"
+#include "assembler.h"
 
 bool hasEnding (std::string const &fullString, std::string const &ending) {
     if (fullString.length() >= ending.length()) {
