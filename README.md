@@ -15,7 +15,7 @@ Its syntax is as follows:
 ```
 @<tag>
 ```
-The tag can be any number, label, or variable, which will be explained at a later point.
+The tag can be any number, label, or variable. Those will be explained in depth at a later point.
 
 ## C Instruction
 The C instruction is a more compilcated instruction used for logic.
