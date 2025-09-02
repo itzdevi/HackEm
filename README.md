@@ -1,5 +1,5 @@
 # HackEk Overview
-The HackEm project is based on the computer from the course nand2tetris by Noam Nisan and Shimon Schocken. It includes both an assembler and an emulator, and at a later point a compiler for either C or a custom designed language for the HACK architecture.
+The HackEm project is based on the HACK processor designed during the course nand2tetris by Noam Nisan and Shimon Schocken. It includes both an assembler and an emulator, and at a later point a compiler for either C or a custom designed language for the HACK assembly .
 
 # HACK Computer Infrastracture
 The HACK computer is a 16 bit computer with 256KB of instruction ROM, and 192KB of RAM.
@@ -13,9 +13,9 @@ In the hack assembly language there are 2 types of instructions.
 The A instruction is used for changing the A register.
 Its syntax is as follows:
 ```
-@<address>
+@<tag>
 ```
-The address can be any number, label, or variable, which will be explained at a later point.
+The tag can be any number, label, or variable, which will be explained at a later point.
 
 ## C Instruction
 The C instruction is a more compilcated instruction used for logic.
