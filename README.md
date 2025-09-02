@@ -1,5 +1,5 @@
-# Hack
-The HackEm project is based on the computer from the course nand2tetris. It is highly optimized for intense computations and includes both an assembler and an emulator.
+# HackEk Overview
+The HackEm project is based on the computer from the course nand2tetris by Noam Nisan and Shimon Schocken. It includes both an assembler and an emulator, and at a later point a compiler for either C or a custom designed language for the HACK architecture.
 
 # HACK Computer Infrastracture
 The HACK computer is a 16 bit computer with 256KB of instruction ROM, and 192KB of RAM.
