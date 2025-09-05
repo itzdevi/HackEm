@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include "emulator.h"
 
@@ -33,7 +33,7 @@ void HackFree(Hack *instance)
 
 void ParseCommand(Hack *instance, short command)
 {
-    if (CHECK_BIT(command, 16))
+    if (CHECK_BIT(command, 15))
     {
         // C INSTRUCTION
         short a = (unsigned short)((unsigned short)command << 3) >> 15;
@@ -129,6 +129,7 @@ void ParseCommand(Hack *instance, short command)
             break;
         case 0b000010:
             // set register to D+A || D+M
+            std::cout << a <<  " " << instance->D << " " << instance->RAM[instance->A] << "\n";
             cycleValue = a ? instance->D + instance->RAM[instance->A] : instance->D + instance->A;
             break;
         case 0b010011:
@@ -202,35 +203,6 @@ void ParseCommand(Hack *instance, short command)
         instance->A = command;
     }
 }
-
-// void HandleScreen(Hack *instance)
-// {
-//     int x = 0;
-//     int y = 0;
-//     glClear(GL_COLOR_BUFFER_BIT);
-//     for (int i = 16384; i < 24576; i++)
-//     {
-//         unsigned short data = instance->RAM[i];
-//         for (int j = 0; j < 16; j++)
-//         {
-//             if (x == 512)
-//             {
-//                 x = 0;
-//                 y++;
-//             }
-
-//             unsigned short bit = data << (15 - j) >> (15 - j);
-//             glBegin(GL_POINTS);
-//             glColor3f(1, 1, 1);
-//             glVertex2i(x, y);
-//             glEnd();
-
-//             x++;
-//         }
-//     }
-
-//     glfwSwapBuffers(instance->window);
-// }
 
 void HackAddCommand(Hack *instance, short *command)
 {

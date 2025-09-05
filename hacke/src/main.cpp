@@ -1,5 +1,5 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -16,18 +16,19 @@ bool hasEnding (std::string const &fullString, std::string const &ending) {
 int main(int argc, char** argv) {
     if (argc < 2) return 1;
     if (!hasEnding(argv[1], ".hack")) return 1;
-    std::ifstream f(argv[1]);
-    std::vector<std::string> content;
-    std::string line;
-    while (std::getline(f, line)) {
-        content.push_back(line);
+    std::ifstream f(argv[1], std::ios::binary);
+    std::vector<short> content;
+    short word;
+    while (f.read(reinterpret_cast<char*>(&word), sizeof(word))) {
+        content.push_back(word);
     }
     Hack* hack = HackInit();
-    for (std::string line : content) {
-        HackAddCommand(hack, new short(std::stoi(line, 0, 2)));
+    for (size_t i = 0; i < content.size(); i++) {
+        HackAddCommand(hack, &(content[i]));
     }
     HackExecute(hack);
-
+    std::cout<< HackGetMemData(hack, 2) << "\n";
+    
     HackFree(hack);
 
     return 0;

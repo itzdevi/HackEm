@@ -14,7 +14,7 @@ std::vector<std::string> Parse(std::string filename) {
     std::string content;
     std::string line;
     while (std::getline(f, line)) {
-        content += line + '\n';
+        content += line + "\n";
     }
 
     f.close();
@@ -53,26 +53,26 @@ std::vector<std::string> Parse(std::string filename) {
 }
 
 std::vector<std::string> Symbolize(std::vector<std::string> source) {
-    std::unordered_map<std::string, unsigned short> SYMBOLS;
+    std::unordered_map<std::string, unsigned short> symbols;
     {
-        SYMBOLS["R0"] = 0;
-        SYMBOLS["R1"] = 1;
-        SYMBOLS["R2"] = 2;
-        SYMBOLS["R3"] = 3;
-        SYMBOLS["R4"] = 4;
-        SYMBOLS["R5"] = 5;
-        SYMBOLS["R6"] = 6;
-        SYMBOLS["R7"] = 7;
-        SYMBOLS["R8"] = 8;
-        SYMBOLS["R9"] = 9;
-        SYMBOLS["R10"] = 10;
-        SYMBOLS["R11"] = 11;
-        SYMBOLS["R12"] = 12;
-        SYMBOLS["R13"] = 13;
-        SYMBOLS["R14"] = 14;
-        SYMBOLS["R15"] = 15;
-        SYMBOLS["SCREEN"] = 16384;
-        SYMBOLS["KBD"] = 24576;
+        symbols["R0"] = 0;
+        symbols["R1"] = 1;
+        symbols["R2"] = 2;
+        symbols["R3"] = 3;
+        symbols["R4"] = 4;
+        symbols["R5"] = 5;
+        symbols["R6"] = 6;
+        symbols["R7"] = 7;
+        symbols["R8"] = 8;
+        symbols["R9"] = 9;
+        symbols["R10"] = 10;
+        symbols["R11"] = 11;
+        symbols["R12"] = 12;
+        symbols["R13"] = 13;
+        symbols["R14"] = 14;
+        symbols["R15"] = 15;
+        symbols["SCREEN"] = 16384;
+        symbols["KBD"] = 24576;
     }
 
     // first pass
@@ -85,7 +85,7 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
                 std::cerr << "Expected EOL, found '" << line[line.length()-1] << "'\n";
                 exit(1);
             }
-
+            
             labeled.push_back(line);
             ln++;
         }
@@ -96,8 +96,8 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
                 exit(1);
             }
             std::string label = line.substr(1, line.length()-2);
-            if (SYMBOLS.find(label) != SYMBOLS.end()) continue;
-            SYMBOLS[label] = ln;
+            if (symbols.find(label) != symbols.end()) continue;
+            symbols[label] = ln;
         }
     }
 
@@ -111,12 +111,12 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
         }
 
         std::string tag = line.substr(1, line.length() - 1);
-        if (SYMBOLS.find(tag) == SYMBOLS.end()) {
-            SYMBOLS[tag] = lastVarPos++;
-            parsed.push_back("@" + std::to_string(SYMBOLS[tag]));
+        if (symbols.find(tag) == symbols.end()) {
+            symbols[tag] = lastVarPos++;
+            parsed.push_back(line);
         }
         else {
-            parsed.push_back("@" + std::to_string(SYMBOLS[tag]));
+            parsed.push_back("@" + std::to_string(symbols[tag]));
         }
     }
 
@@ -129,6 +129,7 @@ void Assemble(std::vector<std::string> symbolized, std::string output) {
     for (std::string line : symbolized) {
         if (line[0] == '@') {
             // A INSTRUCTION
+            std::string label = line.substr(1, line.length() - 1);
             unsigned short val = (unsigned short)std::stoi(line.substr(1, line.length() - 1));
             bin.push_back(std::bitset<16>(val).to_string());
         }
