@@ -1,6 +1,9 @@
+#include "emulator.h"
+
 #include <iostream>
 #include <stdlib.h>
-#include "emulator.h"
+#include <vector>
+
 
 #define CLOCK_RATE 2000
 #define FRAME_RATE 60
@@ -13,16 +16,13 @@ unsigned int cycles = 0;
 //     RAM[24576] = (short)key;
 // }
 
-Hack *HackInit()
+Emulator::Emulator(std::vector<short> instructions)
 {
-    Hack *hack = (Hack *)malloc(sizeof(Hack));
-    hack->A = 0;
-    hack->D = 0;
-    hack->PC = 0;
-    hack->ROM = (short **)calloc(32768, sizeof(short *));
-    hack->RAM = (short *)calloc(24577, sizeof(short));
-
-    return hack;
+    this.A = 0;
+    this.D = 0;
+    this.PC = 0;
+    this.ROM = (short **)calloc(32768, sizeof(short *));
+    this.RAM = (short *)calloc(24577, sizeof(short));
 }
 
 void HackFree(Hack *instance)
@@ -223,8 +223,6 @@ void HackExecute(Hack *instance)
         //     HandleScreen(instance);
         //     cycles = 0;
         // }
-
-        cycles++;
         instance->PC++;
     }
 }

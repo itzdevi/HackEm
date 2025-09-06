@@ -1,5 +1,19 @@
 #pragma once
 
+class Emulator {
+private:
+    short A;
+    short D;
+    unsigned short PC;
+    short** ROM;
+    short* RAM;
+public:
+    Emulator(std::vector<short> instructions);
+    ~Emulator();
+    void Begin();
+    short ReadMemory(unsigned short address);
+};
+
 typedef struct Hack {
     short A;
     short D;
