@@ -1,23 +1,20 @@
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <print>
 
 #include "emulator.h"
-
 #include "util/file.h"
 
-int main(int argc, char** argv) {
-    if (argc < 2) return 1;
+int main(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        std::println("Missing ROM parameter.\nUsage: hacke <ROM>");
+        return EXIT_FAILURE;
+    }
 
-    std::vector<short> content = read_bin(argv[1]);
-    // Hack* hack = HackInit();
-    // for (size_t i = 0; i < content.size(); i++) {
-    //     HackAddCommand(hack, &(content[i]));
-    // }
-    // HackExecute(hack);
-    
-    // HackFree(hack);
+    Emulator em(read_bin(argv[1]));
+    em.Begin();
 
-    return 0;
+    std::println("{}", em.ReadMemory(16));
+
+    return EXIT_SUCCESS;
 }
