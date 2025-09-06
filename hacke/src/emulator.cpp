@@ -129,7 +129,6 @@ void ParseCommand(Hack *instance, short command)
             break;
         case 0b000010:
             // set register to D+A || D+M
-            std::cout << a <<  " " << instance->D << " " << instance->RAM[instance->A] << "\n";
             cycleValue = a ? instance->D + instance->RAM[instance->A] : instance->D + instance->A;
             break;
         case 0b010011:

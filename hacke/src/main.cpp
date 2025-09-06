@@ -27,7 +27,8 @@ int main(int argc, char** argv) {
         HackAddCommand(hack, &(content[i]));
     }
     HackExecute(hack);
-    std::cout<< HackGetMemData(hack, 2) << "\n";
+
+    std::cout << HackGetMemData(hack, 16) << "\n";
     
     HackFree(hack);
 
