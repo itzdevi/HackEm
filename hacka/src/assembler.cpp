@@ -5,6 +5,14 @@
 #include <string>
 #include "assembler.h"
 
+bool is_number(const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
+
 std::vector<std::string> Parse(std::string filename) {
     std::ifstream f(filename);
     if (!f.is_open()) {
@@ -97,7 +105,7 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
             }
             std::string label = line.substr(1, line.length()-2);
             if (symbols.find(label) != symbols.end()) continue;
-            symbols[label] = ln;
+            symbols[label] = ln-1;
         }
     }
 
@@ -111,13 +119,14 @@ std::vector<std::string> Symbolize(std::vector<std::string> source) {
         }
 
         std::string tag = line.substr(1, line.length() - 1);
+        if (is_number(tag)) {
+            parsed.push_back(line);
+            continue;
+        }
         if (symbols.find(tag) == symbols.end()) {
             symbols[tag] = lastVarPos++;
-            parsed.push_back(line);
         }
-        else {
-            parsed.push_back("@" + std::to_string(symbols[tag]));
-        }
+        parsed.push_back("@" + std::to_string(symbols[tag]));
     }
 
     return parsed;
@@ -130,7 +139,7 @@ void Assemble(std::vector<std::string> symbolized, std::string output) {
         if (line[0] == '@') {
             // A INSTRUCTION
             std::string label = line.substr(1, line.length() - 1);
-            unsigned short val = (unsigned short)std::stoi(line.substr(1, line.length() - 1));
+            unsigned short val = (unsigned short)std::stoi(label);
             bin.push_back(std::bitset<16>(val).to_string());
         }
         else {
@@ -287,3 +296,4 @@ void Assemble(std::vector<std::string> symbolized, std::string output) {
     f.write(reinterpret_cast<char*>(res.data()), res.size() * sizeof(unsigned short));
     f.close();
 }
+
