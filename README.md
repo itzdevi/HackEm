@@ -4,7 +4,7 @@ A simple Hack CPU and assembler emulator.
 
 ## Overview
 
-This project emulates the Hack CPU from _nand2tetris_ by **Shimon Schocken** and **Noam Nisan**, supporting Hack assembly programs and C-instructions.
+This project emulates the Hack CPU from _nand2tetris_ by **Shimon Schocken** and **Noam Nisan**, supporting Hack assembly programs.
 
 ## Getting Started
 
