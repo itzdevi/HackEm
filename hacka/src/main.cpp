@@ -1,24 +1,24 @@
-#include "assembler.h"
+#include <print>
 
-bool hasEnding(std::string const &fullString, std::string const &ending)
-{
-    if (fullString.length() >= ending.length())
-    {
-        return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
-    }
-    else
-    {
-        return false;
-    }
-}
+#include "cxxopts.hpp"
+#include "assembler.h"
 
 int main(int argc, char **argv)
 {
-    if (argc < 2)
-        return 1;
-    std::string s(argv[1]);
-    if (!hasEnding(s, ".asm"))
-        return 1;
-    std::string tag = s.substr(0, s.length() - 4);
-    Assemble(Symbolize(Parse(s)), tag + ".hack");
+    cxxopts::Options options("hacka");
+    options.add_options()("i,input", "Input file", cxxopts::value<std::string>())("o,output", "Output file", cxxopts::value<std::string>());
+    auto result = options.parse(argc, argv);
+    if (!result.count("input"))
+    {
+        std::println("Error: input field is required");
+        return EXIT_FAILURE;
+    }
+    if (!result.count("output"))
+    {
+        std::println("Error: output field is required");
+        return EXIT_FAILURE;
+    }
+    std::string inPath = result["input"].as<std::string>();
+    std::string outPath = result["output"].as<std::string>();
+    Assemble(Symbolize(Parse(inPath)), outPath);
 }

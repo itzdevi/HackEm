@@ -1,17 +1,23 @@
 #include <print>
 
+#include "cxxopts.hpp"
 #include "emulator.h"
 #include "util/file.h"
 
 int main(int argc, char **argv)
 {
-    if (argc < 2)
+    cxxopts::Options options("hacka");
+    options.add_options()("i,input", "Input file", cxxopts::value<std::string>());
+    auto result = options.parse(argc, argv);
+    if (!result.count("input"))
     {
-        std::println("Missing ROM parameter.\nUsage: hacke <ROM>");
+        std::println("Error: input field is required");
         return EXIT_FAILURE;
     }
 
-    Emulator em(read_bin(argv[1]));
+    std::string inPath = result["input"].as<std::string>();
+    std::vector instructions = read_bin(inPath);
+    Emulator em(instructions);
     em.Begin();
 
     std::println("{}", em.ReadMemory(16));
