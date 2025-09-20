@@ -2,8 +2,13 @@
 
 #include <vector>
 
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "renderer.h"
+
 #define ROM_SIZE 32768
 #define RAM_SIZE 24577
+#define SCREEN_OFFSET 16384
 
 class Emulator
 {
@@ -13,6 +18,7 @@ private:
     unsigned short PC = 0;
     short ROM[ROM_SIZE] = {};
     short RAM[RAM_SIZE] = {};
+    Renderer renderer;
 
     void RunInstruction();
 
@@ -21,18 +27,3 @@ public:
     void Begin();
     short ReadMemory(unsigned short address);
 };
-
-typedef struct Hack
-{
-    short A;
-    short D;
-    unsigned short PC;
-    short **ROM;
-    short *RAM;
-} Hack;
-
-Hack *HackInit();
-void HackFree(Hack *instance);
-void HackAddCommand(Hack *instance, short *command);
-void HackExecute(Hack *instance);
-short HackGetMemData(Hack *instance, unsigned short address);

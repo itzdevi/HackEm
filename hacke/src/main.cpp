@@ -20,7 +20,5 @@ int main(int argc, char **argv)
     Emulator em(instructions);
     em.Begin();
 
-    std::println("{}", em.ReadMemory(16));
-
     return EXIT_SUCCESS;
 }

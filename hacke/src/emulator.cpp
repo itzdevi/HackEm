@@ -13,6 +13,7 @@ unsigned int cycles = 0;
 
 Emulator::Emulator(std::vector<short> instructions)
 {
+
     if (instructions.size() > ROM_SIZE)
     {
         std::println("Buffer overflow: ROM size too big");
@@ -26,10 +27,15 @@ Emulator::Emulator(std::vector<short> instructions)
 
 void Emulator::Begin()
 {
-    while (PC < ROM_SIZE)
+    while (PC < ROM_SIZE && !renderer.ShouldClose())
     {
+        renderer.Poll();
+
         RunInstruction();
         PC++;
+
+        renderer.SetFramebuffer(&(RAM[SCREEN_OFFSET]));
+        renderer.Render();
     }
 }
 
