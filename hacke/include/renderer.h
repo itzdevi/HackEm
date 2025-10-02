@@ -11,11 +11,8 @@ private:
     GLFWwindow *window;
     unsigned int vao;
     unsigned int program;
-    unsigned int tex;
     unsigned int ssbo;
-    unsigned short videoMemory[VIDEO_BUFFER_SIZE] = {};
-
-    void MapVideoMemory(const short *memory, size_t memorySize, uint8_t *framebuffer);
+    short *mappedVideoMemory;
 
 public:
     Renderer();
@@ -24,4 +21,5 @@ public:
     void Render();
     bool ShouldClose();
     void SetFramebuffer(short *buffer);
+    short* GetVideoMemoryPointer();
 };

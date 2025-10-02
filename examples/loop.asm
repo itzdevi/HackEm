@@ -1,25 +1,24 @@
 @SCREEN
 D=A
-@POSITION
+@POS
 M=D
 
-@24576
+@24575
 D=A
 @END
 M=D
 
 (CLEAR)
-    @POSITION
+    @POS
     A=M
     M=-1
-    @POSITION
+    @POS
     MD=M+1
     @END
     D=M-D
     @CLEAR
     D;JGE
 
-
-(END)
-    @END
+(LOOP)
+    @LOOP
     0;JMP

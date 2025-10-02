@@ -1,6 +1,7 @@
 #include "emulator.h"
 
 #include <print>
+#include <chrono>
 
 #define CHECK_BIT(var, pos) var & 1 << pos
 
@@ -13,29 +14,44 @@ unsigned int cycles = 0;
 
 Emulator::Emulator(std::vector<short> instructions)
 {
-
     if (instructions.size() > ROM_SIZE)
     {
-        std::println("Buffer overflow: ROM size too big");
+        std::println("Buffer overflow: ROM size is too big");
         exit(EXIT_FAILURE);
     }
     for (size_t i = 0; i < instructions.size(); i++)
     {
         ROM[i] = instructions[i];
     }
+    
+    // Get pointer to GPU-mapped video memory for direct writes
+    videoMemory = renderer.GetVideoMemoryPointer();
 }
 
 void Emulator::Begin()
 {
+    using namespace std::chrono;
+    
+    // 60 FPS = 16.67ms per frame
+    const auto frameDuration = duration_cast<nanoseconds>(duration<double>(1.0 / 60.0));
+    auto lastFrameTime = steady_clock::now();
+    
     while (PC < ROM_SIZE && !renderer.ShouldClose())
     {
         renderer.Poll();
 
+        // Run CPU instructions at full speed
         RunInstruction();
         PC++;
 
-        renderer.SetFramebuffer(&(RAM[SCREEN_OFFSET]));
-        renderer.Render();
+        // Only render at 60Hz
+        auto currentTime = steady_clock::now();
+        if (currentTime - lastFrameTime >= frameDuration)
+        {
+            // No SetFramebuffer call needed! Video memory writes go directly to GPU
+            renderer.Render();
+            lastFrameTime = currentTime;
+        }
     }
 }
 
@@ -49,13 +65,6 @@ void Emulator::RunInstruction()
         unsigned short comp = (command >> 6) & 0b111111;
         unsigned short dest = (command >> 3) & 0b111;
         unsigned short jump = command & 0b111;
-        short *regs[3] = {nullptr, nullptr, nullptr};
-        if (dest & 0b100)
-            regs[0] = &A;
-        if (dest & 0b010)
-            regs[1] = &D;
-        if (dest & 0b001)
-            regs[2] = &RAM[A];
 
         short cycleValue = 0;
         switch (comp)
@@ -78,7 +87,7 @@ void Emulator::RunInstruction()
             break;
         case 0b110000:
             // set register to A || M
-            cycleValue = a ? RAM[A] : A;
+            cycleValue = a ? ReadMemory(A) : A;
             break;
         case 0b001101:
             // set register to !D
@@ -86,7 +95,7 @@ void Emulator::RunInstruction()
             break;
         case 0b110001:
             // set register to !A || !M
-            cycleValue = a ? ~RAM[A] : ~A;
+            cycleValue = a ? ~ReadMemory(A) : ~A;
             break;
         case 0b001111:
             // set register to -D
@@ -94,7 +103,7 @@ void Emulator::RunInstruction()
             break;
         case 0b110011:
             // set register to -A || -M
-            cycleValue = a ? -RAM[A] : -A;
+            cycleValue = a ? -ReadMemory(A) : -A;
             break;
         case 0b011111:
             // set register to D+1
@@ -102,7 +111,7 @@ void Emulator::RunInstruction()
             break;
         case 0b110111:
             // set register to A+1 || M+1
-            cycleValue = a ? RAM[A] + 1 : A + 1;
+            cycleValue = a ? ReadMemory(A) + 1 : A + 1;
             break;
         case 0b001110:
             // set register to D-1
@@ -110,35 +119,37 @@ void Emulator::RunInstruction()
             break;
         case 0b110010:
             // set register to A-1 || M-1
-            cycleValue = a ? RAM[A] - 1 : A - 1;
+            cycleValue = a ? ReadMemory(A) - 1 : A - 1;
             break;
         case 0b000010:
             // set register to D+A || D+M
-            cycleValue = a ? D + RAM[A] : D + A;
+            cycleValue = a ? D + ReadMemory(A) : D + A;
             break;
         case 0b010011:
             // set register to D-A || D-M
-            cycleValue = a ? D - RAM[A] : D - A;
+            cycleValue = a ? D - ReadMemory(A) : D - A;
             break;
         case 0b000111:
             // set register to A-D || M-D
-            cycleValue = a ? RAM[A] - D : A + D;
+            cycleValue = a ? ReadMemory(A) - D : A + D;
             break;
         case 0b000000:
             // set register to A&D || A&M
-            cycleValue = a ? RAM[A] & D : A & D;
+            cycleValue = a ? ReadMemory(A) & D : A & D;
             break;
         case 0b010101:
             // set register to A|D || A|M
-            cycleValue = a ? RAM[A] | D : A | D;
+            cycleValue = a ? ReadMemory(A) | D : A | D;
             break;
         }
 
-        for (int i = 0; i < 3; i++)
-        {
-            if (regs[i])
-                *regs[i] = cycleValue;
-        }
+        // Handle register assignments
+        if (dest & 0b100)  // A register
+            A = cycleValue;
+        if (dest & 0b010)  // D register  
+            D = cycleValue;
+        if (dest & 0b001)  // Memory at address A
+            WriteMemory(A, cycleValue);  // Use WriteMemory for proper video memory handling
 
         switch (jump)
         {
@@ -187,5 +198,24 @@ void Emulator::RunInstruction()
 
 short Emulator::ReadMemory(unsigned short address)
 {
+    if (address >= SCREEN_OFFSET && address < SCREEN_OFFSET + VIDEO_BUFFER_SIZE)
+    {
+        // Read from GPU-mapped video memory
+        return videoMemory[address - SCREEN_OFFSET];
+    }
     return RAM[address];
+}
+
+void Emulator::WriteMemory(unsigned short address, short value)
+{
+    if (address >= SCREEN_OFFSET && address < SCREEN_OFFSET + VIDEO_BUFFER_SIZE)
+    {
+        // Write directly to GPU-mapped video memory - instant GPU update!
+        videoMemory[address - SCREEN_OFFSET] = value;
+    }
+    else
+    {
+        // Write to regular RAM
+        RAM[address] = value;
+    }
 }
