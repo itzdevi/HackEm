@@ -20,5 +20,5 @@ int main(int argc, char **argv)
     Emulator em(instructions);
     em.Begin();
 
-    return em.ReadMemory(16);
+    return EXIT_SUCCESS;
 }
