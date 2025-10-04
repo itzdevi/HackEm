@@ -131,7 +131,7 @@ void Emulator::RunInstruction()
             break;
         case 0b000111:
             // set register to A-D || M-D
-            cycleValue = a ? ReadMemory(A) - D : A + D;
+            cycleValue = a ? ReadMemory(A) - D : A - D;
             break;
         case 0b000000:
             // set register to A&D || A&M

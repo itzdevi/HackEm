@@ -38,7 +38,7 @@ void main() {
     vec2 flippedCoord = vec2(texCoord.x, 1.0 - texCoord.y);
     
     // Convert texture coordinates to pixel coordinates
-    ivec2 pixelCoord = ivec2(flippedCoord * vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
+    ivec2 pixelCoord = ivec2(flippedCoord * vec2(SCREEN_WIDTH-1, SCREEN_HEIGHT-1));
     
     // Clamp pixel coordinates to valid range
     pixelCoord = clamp(pixelCoord, ivec2(0), ivec2(SCREEN_WIDTH-1, SCREEN_HEIGHT-1));
