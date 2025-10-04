@@ -81,7 +81,7 @@ M=0
 @CURSOR_Y
 M=0
 
-@100
+@34
 D=A
 @COUNT
 M=D
@@ -100,7 +100,7 @@ M=D
     @32
     D=A-D
     @NO_WRAP
-    D;JGE
+    D;JGT
 
     @CURSOR_X
     M=0
