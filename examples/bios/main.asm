@@ -13875,24 +13875,129 @@ M=D
 @R0
 M=M+1
 
-@65
+@129
 D=A
-@R0
+@FONT_OFFSET
 M=D
 
-@CURSOR_X
+@4096
+D=A
+@TEXT_OFFSET
+M=D
+
+@2048
+D=A
+@TEXT_SIZE
+M=D
+
+@WORD_IDX
+M=0
+@CHAR_COUNT
 M=0
 
-@PROGRAM
+@72
 D=A
-@R15
+@4096
 M=D
 
-@DRAW_CHARACTER
-0;JMP
+@101
+D=A
+@4097
+M=D
 
-(PROGRAM)
+@108
+D=A
+@4098
+M=D
 
+@108
+D=A
+@4099
+M=D
+
+@111
+D=A
+@4100
+M=D
+
+@32
+D=A
+@4101
+M=D
+
+@87
+D=A
+@4102
+M=D
+
+@111
+D=A
+@4103
+M=D
+
+@114
+D=A
+@4104
+M=D
+
+@108
+D=A
+@4105
+M=D
+
+@100
+D=A
+@4106
+M=D
+
+@33
+D=A
+@4107
+M=D
+
+(WRITE)
+    @SCREEN_OFFSET
+    M=0
+    @WORD_IDX
+    M=0
+    @CHAR_COUNT
+    M=0
+    @TEXT_IDX
+    M=0
+    (LOOP_WRITE)
+        // GET CURRENT CHARACTER
+        @TEXT_IDX
+        D=M
+        @TEXT_OFFSET
+        D=D+M
+
+        // SET PARAMETERS
+        A=D
+        D=M
+        @R0
+        M=D
+        @LOOP_WRITE_CONTINUE
+        D=A
+        @R15
+        M=D
+
+        // CALL DRAW
+        @DRAW_CHARACTER
+        0;JMP
+
+        (LOOP_WRITE_CONTINUE)
+
+        // INCREASE INDEX AND LOOP
+        @TEXT_IDX
+        MD=M+1
+        @TEXT_SIZE
+        D=D-M
+        @LOOP_WRITE
+        D;JLT
+
+    @WRITE
+    0;JMP
+    
 
 @END
 (END)
@@ -13932,6 +14037,8 @@ M=D
     // CALCULATE CHARACTER POINTER
     @R0
     D=M
+    @SKIP_DRAW_CHARACTER
+    D;JEQ
     @32
     D=D-A
     @R10
@@ -13943,13 +14050,17 @@ M=D
 
     @R10
     D=M
-    @129
-    D=D+A
+    @FONT_OFFSET
+    D=D+M
+    @CHAR_COUNT
+    D=D-M
     @CHARACTER_PTR
     M=D
 
     @SCREEN
     D=A
+    @WORD_IDX
+    D=D+M
     @SCREEN_OFFSET
     M=D
 
@@ -13964,7 +14075,7 @@ M=D
 
         @SCREEN_OFFSET
         A=M
-        M=D
+        M=D|M
 
         @2
         D=A
@@ -13982,6 +14093,21 @@ M=D
 
         @LOOP_DRAW_CHARACTER
         D;JGT
+
+    (SKIP_DRAW_CHARACTER)
+
+    @CHAR_COUNT
+    MD=M+1
+    @2
+    D=A-D
+    @SKIP_INC
+    D;JGT
+    @WORD_IDX
+    M=M+1
+    @CHAR_COUNT
+    M=0
+    (SKIP_INC)
+
 
     @R15
     A=M
