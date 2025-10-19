@@ -8,10 +8,6 @@
 unsigned int lastCommandIndex = 0;
 unsigned int cycles = 0;
 
-// void HandleInput(GLFWwindow* window, unsigned int key) {
-//     RAM[24576] = (short)key;
-// }
-
 Emulator::Emulator(std::vector<short> instructions)
 {
     if (instructions.size() > ROM_SIZE)
@@ -26,6 +22,17 @@ Emulator::Emulator(std::vector<short> instructions)
     
     // Get pointer to GPU-mapped video memory for direct writes
     videoMemory = renderer.GetVideoMemoryPointer();
+    // renderer.SetInputCallback(Emulator::CharCallback);
+}
+
+void Emulator::HandleInput() {
+    for (int key = GLFW_KEY_SPACE; key <= GLFW_KEY_LAST; key++) {
+        if (glfwGetKey(renderer.GetWindow(), key) == GLFW_PRESS) {
+            RAM[24576] = (short)key;  // or whatever address you want
+            return;
+        }
+    }
+    RAM[24576] = 0;
 }
 
 void Emulator::Begin()
@@ -41,6 +48,7 @@ void Emulator::Begin()
         renderer.Poll();
 
         // Run CPU instructions at full speed
+        HandleInput();
         RunInstruction();
         PC++;
 

@@ -22,4 +22,5 @@ public:
     bool ShouldClose();
     void SetFramebuffer(short *buffer);
     short* GetVideoMemoryPointer();
+    GLFWwindow* GetWindow() { return window; }
 };

@@ -17,68 +17,43 @@ M=D
 M=0
 @CHAR_COUNT
 M=0
+@Y_POS
+M=0
 
-@72
-D=A
-@4096
+@TEXT_OFFSET
+D=M
+@PTR
 M=D
 
-@101
+@2048
 D=A
-@4097
+@IDX
 M=D
 
-@108
-D=A
-@4098
-M=D
-
-@108
-D=A
-@4099
-M=D
-
-@111
-D=A
-@4100
-M=D
-
-@32
-D=A
-@4101
-M=D
-
-@87
-D=A
-@4102
-M=D
-
-@111
-D=A
-@4103
-M=D
-
-@114
-D=A
-@4104
-M=D
-
-@108
-D=A
-@4105
-M=D
-
-@100
-D=A
-@4106
-M=D
-
-@33
-D=A
-@4107
-M=D
 
 (WRITE)
+    @SCREEN
+    D=A
+    @CLEAR_PTR
+    M=D
+    (CLEAR_LOOP)
+        @CLEAR_PTR
+        A=M
+        M=0
+        @CLEAR_PTR
+        MD=M+1
+        @24576
+        D=A-D
+        @CLEAR_LOOP
+        D;JGE
+
+    @KBD
+    D=M
+    @TEXT_OFFSET
+    A=M
+    M=D
+    //M=D
+
     @SCREEN_OFFSET
     M=0
     @WORD_IDX
@@ -86,6 +61,8 @@ M=D
     @CHAR_COUNT
     M=0
     @TEXT_IDX
+    M=0
+    @Y_POS
     M=0
     (LOOP_WRITE)
         // GET CURRENT CHARACTER
@@ -184,6 +161,8 @@ M=D
     D=A
     @WORD_IDX
     D=D+M
+    @Y_POS
+    D=D+M
     @SCREEN_OFFSET
     M=D
 
@@ -231,6 +210,20 @@ M=D
     M=0
     (SKIP_INC)
 
+    @WORD_IDX
+    D=M
+    @32
+    D=D-A
+    @NO_WRAP
+    D;JLT
+    @WORD_IDX
+    M=0
+    @256
+    D=A
+    @Y_POS
+    M=D+M
+
+    (NO_WRAP)
 
     @R15
     A=M

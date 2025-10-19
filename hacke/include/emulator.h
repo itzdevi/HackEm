@@ -17,15 +17,16 @@ private:
     short D = 0;
     unsigned short PC = 0;
     short ROM[ROM_SIZE] = {};
-    short RAM[RAM_SIZE] = {};
+    short RAM[RAM_SIZE];
     short *videoMemory;  // Points to GPU-mapped memory for screen
     Renderer renderer;
 
     void RunInstruction();
-
-public:
+    
+    public:
     Emulator(std::vector<short> instructions);
     void Begin();
     short ReadMemory(unsigned short address);
     void WriteMemory(unsigned short address, short value);
+    void HandleInput();
 };
